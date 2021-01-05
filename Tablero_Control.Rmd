@@ -2,13 +2,13 @@
 title: "Tablero de indicadores COVID19"
 subtitle: "Tierra del Fuego"
 author: "Franco Marsico - Cecilia Guillamet Chargue"
-date: 23 de diciembre, 2020
+date: 04 de enero 2021
 output: html_document
 ---
 ``` {r, echo = FALSE}
 knitr::opts_chunk$set(warning = FALSE, message = FALSE)
 knitr::opts_chunk$set(echo=FALSE)
-htmltools::img(src = knitr::image_uri("/Users/ceciliaguillametchargue/Desktop/COVID_19/LogoTDF.png"),
+htmltools::img(src = knitr::image_uri("/Users/ceciliaguillametchargue/Desktop/COVID_19/LogoTDF.jpeg"),
                alt = "logo",
                style = "position:absolute; top:0; right:200px; padding:2px; width:200px")
 htmltools::img(src = knitr::image_uri("//Users/ceciliaguillametchargue/Desktop/COVID_19/Logo.png"),
@@ -24,6 +24,7 @@ library(tidyverse)
 library(tidyr)
 library(pander)
 library(dplyr)
+library(stringr)
 ```
 
 ``` {r, echo = FALSE}
@@ -105,7 +106,7 @@ ggplot(llamadostol2, aes(x = fecha_llamado, y = n)) +
 # Cantidad de casos confirmados en Tierra del Fuego
 
 ``` {r}
-casos <- read.csv2("/Users/ceciliaguillametchargue/Downloads/sisa-5/snvsExports/report/TIERRA_DEL_FUEGO-23-12-2020_07-05-55.csv", sep = ",")
+casos <- read.csv2("/Users/ceciliaguillametchargue/Downloads/sisa-15/snvsExports/report/TIERRA_DEL_FUEGO-04-01-2021_07-02-23.csv", sep = ",")
 casos$FECHA_APERTURA <- as.Date(casos$FECHA_APERTURA, format = "%d/%m/%Y")
 confirmados <- casos[casos$CLASIF_RESUMEN == "Confirmado",]
 ```
@@ -114,10 +115,11 @@ confirmados <- casos[casos$CLASIF_RESUMEN == "Confirmado",]
 confirmados2 <- confirmados %>%
   group_by(FECHA_APERTURA) %>%
   tally()
+View(confirmados2)
 ```
 
 ``` {r}
-ggplot(confirmados2, aes(x = confirmados2$FECHA_APERTURA, y = confirmados2$n)) +
+ggplot(confirmados2, aes(x = FECHA_APERTURA, y = n)) +
   geom_line(color = "darkorange", size = 1) +
   labs(x = "Fecha de notificación", y = "Frecuencia") +
   theme(plot.title = element_text(size=rel(2), #Tamaño relativo de la letra del título
@@ -136,7 +138,7 @@ confirmadosUSH2 <- confirmadosUSH %>%
 ```
 
 ``` {r}
-ggplot(confirmadosUSH2, aes(x = confirmadosUSH2$FECHA_APERTURA, y = confirmadosUSH2$n)) +
+ggplot(confirmadosUSH2, aes(x = FECHA_APERTURA, y = n)) +
   geom_line(color = "#2E86C1", size = 1) +
   labs(x = "Fecha de notificación", y = "Frecuencia") +
   theme(plot.title = element_text(size=rel(2), #Tamaño relativo de la letra del título
@@ -156,7 +158,7 @@ confirmadosRG2 <- confirmadosRG %>%
 ```
 
 ``` {r}
-ggplot(confirmadosRG2, aes(x = confirmadosRG2$FECHA_APERTURA, y = confirmadosRG2$n)) +
+ggplot(confirmadosRG2, aes(x = FECHA_APERTURA, y = n)) +
   geom_line(color = "#E67E22", size = 1) +
   labs(x = "Fecha de notificación", y = "Frecuencia") +
   theme(plot.title = element_text(size=rel(2), #Tamaño relativo de la letra del título
@@ -175,7 +177,7 @@ confirmadosTOL2 <- confirmadosTOL %>%
 ```
 
 ``` {r}
-ggplot(confirmadosTOL2, aes(x = confirmadosTOL2$FECHA_APERTURA, y = confirmadosTOL2$n)) +
+ggplot(confirmadosTOL2, aes(x = FECHA_APERTURA, y = n)) +
   geom_line(color = "#116F7A", size = 1) +
   labs(x = "Fecha de notificación", y = "Frecuencia") +
   theme(plot.title = element_text(size=rel(2), #Tamaño relativo de la letra del título
@@ -265,6 +267,11 @@ conf_ge <- left_join(confirmadosGEUSH, confirmadosGERG, by = "GRUPO_ETARIO_DECAD
 conf_ge <- left_join(conf_ge, confirmadosGETOL, by = "GRUPO_ETARIO_DECADA")
 conf_ge <- rename(conf_ge, "GRUPO ETARIO" = GRUPO_ETARIO_DECADA, "USHUAIA" = n.x, "RIO GRANDE" = n.y, "TOLHUIN" = n)
 conf_ge$TOLHUIN <- ifelse(is.na(conf_ge$TOLHUIN), 0, conf_ge$TOLHUIN)
+total_col <- conf_ge %>% 
+  select(USHUAIA:TOLHUIN) %>%
+  colSums()
+total <- c("Total", total_col[1], total_col[2], total_col[3])
+conf_ge <- rbind(conf_ge,total)
 pander(conf_ge)
 ```
 
@@ -277,6 +284,11 @@ def_ge <- left_join(def_ge, defuncionesTOL, by = "GRUPO_ETARIO_DECADA")
 def_ge <- rename(def_ge, "GRUPO ETARIO" = GRUPO_ETARIO_DECADA, "USHUAIA" = n.x, "RIO GRANDE" = n.y, "TOLHUIN" = n)
 def_ge$USHUAIA <- ifelse(is.na(def_ge$USHUAIA), 0, def_ge$USHUAIA)
 def_ge$TOLHUIN <- ifelse(is.na(def_ge$TOLHUIN), 0, def_ge$TOLHUIN)
+total_col_def <- def_ge %>% 
+  select(USHUAIA:TOLHUIN) %>%
+  colSums()
+total_def <- c("Total", total_col_def[1], total_col_def[2], total_col_def[3])
+def_ge <- rbind(def_ge,total_def)
 pander(def_ge)
 ```
 
@@ -334,9 +346,9 @@ Camas_inter_disp_ush <- 17
 fechas$porc_ocup <- round(fechas$ocup_acum/Camas_inter_disp_ush,2)*100
 
 
-ggplot(fechas, aes(x = fechas$Fecha, y = fechas$porc_ocup)) +
+ggplot(fechas, aes(x = Fecha, y = porc_ocup)) +
   geom_line(color = "#2E86C1", size = 1) +
-  labs(x = "Fecha de notificación", y = "Frecuencia") +
+  labs(x = "Fecha", y = "Frecuencia") +
   theme(plot.title = element_text(size=rel(2), #Tamaño relativo de la letra del título
                                   vjust=1, #Justificación vertical, para separarlo del gráfico
                                   face="plain", #Letra negrilla. Otras posibilidades "plain", "italic", "bold" y "bold.italic"
@@ -398,9 +410,9 @@ Camas_inter_disp_rg <- 21
 fechasRG$porc_ocup <- round(fechasRG$ocup_acum/Camas_inter_disp_rg,2)*100
 
 
-ggplot(fechasRG, aes(x = fechasRG$Fecha, y = fechasRG$porc_ocup)) +
-  geom_line(color = "#2E86C1", size = 1) +
-  labs(x = "Fecha de notificación", y = "Frecuencia") +
+ggplot(fechasRG, aes(x = Fecha, y = porc_ocup)) +
+  geom_line(color = "#E67E22", size = 1) +
+  labs(x = "Fecha", y = "Frecuencia") +
   theme(plot.title = element_text(size=rel(2), #Tamaño relativo de la letra del título
                                   vjust=1, #Justificación vertical, para separarlo del gráfico
                                   face="plain", #Letra negrilla. Otras posibilidades "plain", "italic", "bold" y "bold.italic"
