@@ -508,20 +508,21 @@ ggplot(fechasRG, aes(x = Fecha, y = porc_ocup)) +
 ## Semáforo para Ushuaia
 
 ```{r}
-llam_dia_ush <- llamadosush2$n[nrow(llamadosush2)]
-llam_ant_ush <- llamadosush2$n[nrow(llamadosush2)-1]
+llam_ush <- llamadosush2[nrow(llamadosush2):(nrow(llamadosush2)-6),]
+lm.llam_ush <- lm(llam_ush$n ~ llam_ush$fecha_llamado)
+b <- summary(lm.llam_ush)$coefficients[2,1]
+
 x <-  last(fechas$porc_ocup)
 
-
 mode <- case_when(
-  x < 40 & (llam_dia_ush < llam_ant_ush) ~ "Verde",
-  x < 40 & (llam_dia_ush > llam_ant_ush) ~ "Amarillo",
-  40 < x & x < 60 & (llam_dia_ush < llam_ant_ush) ~ "Verde",
-  40 < x & x < 60 & (llam_dia_ush > llam_ant_ush) ~ "Naranja",
-  60 < x & x < 80 & (llam_dia_ush < llam_ant_ush) ~ "Amarillo",
-  60 < x & x < 80 & (llam_dia_ush > llam_ant_ush) ~ "Rojo",
-  x > 80 & (llam_dia_ush < llam_ant_ush) ~ "Naranja",
-  x > 80 & (llam_dia_ush > llam_ant_ush) ~ "Rojo"
+  x < 40 & (b < 0) ~ "Verde",
+  x < 40 & (b > 0) ~ "Amarillo",
+  40 < x & x < 60 & (b < 0) ~ "Verde",
+  40 < x & x < 60 & (b > 0) ~ "Naranja",
+  60 < x & x < 80 & (b < 0) ~ "Amarillo",
+  60 < x & x < 80 & (b > 0) ~ "Rojo",
+  x > 80 & (b < 0) ~ "Naranja",
+  x > 80 & (b > 0) ~ "Rojo"
 )
 
 if (mode == "Verde") {
