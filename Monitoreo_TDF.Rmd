@@ -552,21 +552,23 @@ if (mode == "Verde") {
 ## Semáforo para Río Grande
 
 ```{r}
+llam_rg <- llamadosrg2[nrow(llamadosrg2):(nrow(llamadosrg2)-6),]
+lm.llam_rg <- lm(llam_rg$n ~ llam_rg$fecha_llamado)
+b_rg <- summary(lm.llam_rg)$coefficients[2,1]
 
-llam_dia_rg <- llamadosrg2$n[nrow(llamadosrg2)]
-llam_ant_rg <- llamadosrg2$n[nrow(llamadosrg2)-1]
-x_rg <-  last(fechasRG$porc_ocup)
+x_rg <-  last(fechas$porc_ocup)
 
 mode <- case_when(
-  x_rg < 40 & (llam_dia_rg < llam_ant_rg) ~ "Verde",
-  x_rg < 40 & (llam_dia_rg > llam_ant_rg) ~ "Amarillo",
-  40 < x_rg & x_rg < 60 & (llam_dia_rg < llam_ant_rg) ~ "Verde",
-  40 < x_rg & x_rg < 60 & (llam_dia_rg > llam_ant_rg) ~ "Naranja",
-  60 < x_rg & x_rg < 80 & (llam_dia_rg < llam_ant_rg) ~ "Amarillo",
-  60 < x_rg & x_rg < 80 & (llam_dia_rg > llam_ant_rg) ~ "Rojo",
-  x_rg > 80 & (llam_dia_rg < llam_ant_rg) ~ "Naranja",
-  x_rg > 80 & (llam_dia_rg > llam_ant_rg) ~ "Rojo"
+  x_rg < 40 & (b_rg < 0) ~ "Verde",
+  x_rg < 40 & (b_rg > 0) ~ "Amarillo",
+  40 < x_rg & x_rg < 60 & (b_rg < 0) ~ "Verde",
+  40 < x_rg & x_rg < 60 & (b_rg > 0) ~ "Naranja",
+  60 < x_rg & x_rg < 80 & (b_rg < 0) ~ "Amarillo",
+  60 < x_rg & x_rg < 80 & (b_rg > 0) ~ "Rojo",
+  x_rg > 80 & (b_rg < 0) ~ "Naranja",
+  x_rg > 80 & (b_rg > 0) ~ "Rojo"
 )
+
 
 if (mode == "Verde") {
   wordcloud("Verde", 
