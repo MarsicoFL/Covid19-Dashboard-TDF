@@ -1,0 +1,597 @@
+---
+title: "Tablero de indicadores COVID19"
+subtitle: "Tierra del Fuego"
+author: "Franco Marsico - Cecilia Guillamet Chargue"
+date: 21 de enero 2021
+output: html_document
+---
+``` {r, echo = FALSE}
+knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+knitr::opts_chunk$set(echo=FALSE)
+htmltools::img(src = knitr::image_uri("/Users/ceciliaguillametchargue/Documents/Epidemiología/COVID_19/LogoTDF.jpeg"),
+               alt = "logo",
+               style = "position:absolute; top:0; right:200px; padding:2px; width:200px")
+htmltools::img(src = knitr::image_uri("/Users/ceciliaguillametchargue/Documents/Epidemiología/COVID_19/Logo.png"),
+               alt = "logo",
+               style = "position:absolute; top:0; right:0; padding:2px; width:200px")
+```
+
+``` {r}
+library(ggplot2)
+library(readxl)
+library(textshape)
+library(tidyverse)
+library(tidyr)
+library(pander)
+library(dplyr)
+library(stringr)
+library(zoo)
+library(wordcloud)
+library(kableExtra)
+```
+
+``` {r, echo = FALSE}
+llamados <- read.csv2("/Users/ceciliaguillametchargue/Downloads/llamados_107.csv", sep = ",")
+llamados$fecha_llamado <- as.Date(llamados$fecha_llamado, format = "%d/%m/%Y")
+```
+
+## Frecuencia de llamados a la línea 107 en Tierra del Fuego
+
+``` {r}
+llamados2 <- llamados %>%
+                group_by(fecha_llamado) %>%
+                tally()
+llamados2 <- llamados2[-1,]
+llamados2 <- llamados2[-nrow(llamados2),]
+```
+
+``` {r}
+ggplot(llamados2, aes(x = fecha_llamado, y = n)) +
+      geom_line(color = "#117A65", size = 1) +
+      labs(x = "Fecha del llamado", y = "Frecuencia") +
+      theme(plot.title = element_text(size=rel(2), #Tamaño relativo de la letra del título
+                                 vjust=1, #Justificación vertical, para separarlo del gráfico
+                                 face="plain", #Letra negrilla. Otras posibilidades "plain", "italic", "bold" y "bold.italic"
+                                 lineheight=1))
+```
+
+## Frecuencia de llamados a la línea 107 en Ushuaia
+
+``` {r}
+llamadosush <- llamados[llamados$locallidad == "Ushuaia",]
+llamadosush2 <- llamadosush %>%
+                group_by(fecha_llamado) %>%
+                tally()
+llamadosush2 <- llamadosush2[-nrow(llamadosush2),]
+
+ggplot(llamadosush2, aes(x = fecha_llamado, y = n)) +
+      geom_line(color = "#2E86C1", size = 1) +
+      labs(x = "Fecha del llamado", y = "Frecuencia") +
+      theme(plot.title = element_text(size=rel(2), #Tamaño relativo de la letra del título
+                                 vjust=1, #Justificación vertical, para separarlo del gráfico
+                                 face="plain", #Letra negrilla. Otras posibilidades "plain", "italic", "bold" y "bold.italic"
+                                 lineheight=1))
+```
+
+## Frecuencia de llamados a la línea 107 en Río Grande
+
+``` {r}
+llamadosrg <- llamados[llamados$locallidad == "Río Grande",]
+llamadosrg2 <- llamadosrg %>%
+                group_by(fecha_llamado) %>%
+                tally()
+llamadosrg2 <- llamadosrg2[-1,]
+llamadosrg2 <- llamadosrg2[-nrow(llamadosrg2),]
+
+ggplot(llamadosrg2, aes(x = fecha_llamado, y = n)) +
+      geom_line(color = "#E67E22", size = 1) +
+      labs(x = "Fecha del llamado", y = "Frecuencia") +
+      theme(plot.title = element_text(size=rel(2), #Tamaño relativo de la letra del título
+                                 vjust=1, #Justificación vertical, para separarlo del gráfico
+                                 face="plain", #Letra negrilla. Otras posibilidades "plain", "italic", "bold" y "bold.italic"
+                                 lineheight=1))
+```
+
+## Frecuencia de llamados a la línea 107 en Tolhuin
+
+``` {r}
+llamadostol <- llamados[llamados$locallidad == "Tolhuin",]
+llamadostol2 <- llamadostol %>%
+                group_by(fecha_llamado) %>%
+                tally()
+llamadostol2 <- llamadostol2[-nrow(llamadostol2),]
+
+ggplot(llamadostol2, aes(x = fecha_llamado, y = n)) +
+      geom_line(color = "#116F7A", size = 1) +
+      labs(x = "Fecha del llamado", y = "Frecuencia") +
+      theme(plot.title = element_text(size=rel(2), #Tamaño relativo de la letra del título
+                                 vjust=1, #Justificación vertical, para separarlo del gráfico
+                                 face="plain", #Letra negrilla. Otras posibilidades "plain", "italic", "bold" y "bold.italic"
+                                 lineheight=1))
+```
+
+## Cantidad de casos confirmados en Tierra del Fuego
+
+``` {r}
+casos <- read.csv2("/Users/ceciliaguillametchargue/Downloads/sisa/snvsExports/report/TIERRA_DEL_FUEGO-21-01-2021_07-08-14.csv", sep = ",")
+casos$FECHA_APERTURA <- as.Date(casos$FECHA_APERTURA, format = "%d/%m/%Y")
+confirmados <- casos[casos$CLASIF_RESUMEN == "Confirmado",]
+```
+
+``` {r}
+confirmados2 <- confirmados %>%
+  group_by(FECHA_APERTURA) %>%
+  tally()
+```
+
+``` {r}
+ggplot(confirmados2, aes(x = FECHA_APERTURA, y = n)) +
+  geom_line(color = "darkorange", size = 1) +
+  labs(x = "Fecha de notificación", y = "Frecuencia") +
+  theme(plot.title = element_text(size=rel(2), #Tamaño relativo de la letra del título
+                                  vjust=1, #Justificación vertical, para separarlo del gráfico
+                                  face="plain", #Letra negrilla. Otras posibilidades "plain", "italic", "bold" y "bold.italic"
+                                  lineheight=1))
+```
+
+##Cantidad de casos confirmados por ciudad
+
+``` {r}
+confirmados3 <- confirmados %>%
+  group_by(FECHA_APERTURA, LOCALIDAD_RESIDENCIA) %>%
+  tally()
+```
+
+``` {r}
+confirmados3 <- confirmados3 %>%
+  filter(LOCALIDAD_RESIDENCIA %in% c("USHUAIA", "RIO GRANDE", "TOLHUIN"))
+```
+
+``` {r}
+legend_title <- "localidad"
+ggplot(confirmados3, aes(x = confirmados3$FECHA_APERTURA, y = confirmados3$n, group = confirmados3$LOCALIDAD_RESIDENCIA, 
+                         colour = confirmados3$LOCALIDAD_RESIDENCIA)) +
+  geom_line(size = 1) +
+  scale_color_manual(name = "Localidad", values = c("#E67E22", "#116F7A", "#2E86C1")) +
+  labs(x = "Fecha de notificación", y = "Frecuencia", group = "Localidad") +
+  theme(plot.title = element_text(size=rel(2), #Tamaño relativo de la letra del título
+                                  vjust=1, #Justificación vertical, para separarlo del gráfico
+                                  face="plain", #Letra negrilla. Otras posibilidades "plain", "italic", "bold" y "bold.italic"
+                                  lineheight=1),
+                                  legend.position = "bottom")
+```
+
+
+##Cantidad de casos confirmados en Ushuaia
+
+``` {r}
+confirmadosUSH <- confirmados[confirmados$LOCALIDAD_RESIDENCIA == "USHUAIA",]
+confirmadosUSH2 <- confirmadosUSH %>%
+  group_by(FECHA_APERTURA) %>%
+  tally()
+```
+
+``` {r}
+ggplot(confirmadosUSH2, aes(x = FECHA_APERTURA, y = n)) +
+  geom_line(color = "#2E86C1", size = 1) +
+  labs(x = "Fecha de notificación", y = "Frecuencia") +
+  theme(plot.title = element_text(size=rel(2), #Tamaño relativo de la letra del título
+                                  vjust=1, #Justificación vertical, para separarlo del gráfico
+                                  face="plain", #Letra negrilla. Otras posibilidades "plain", "italic", "bold" y "bold.italic"
+                                  lineheight=1))
+```
+
+
+##Cantidad de casos confirmados en Río Grande
+
+``` {r}
+confirmadosRG <- confirmados[confirmados$LOCALIDAD_RESIDENCIA == "RIO GRANDE",]
+confirmadosRG2 <- confirmadosRG %>%
+  group_by(FECHA_APERTURA) %>%
+  tally()
+```
+
+``` {r}
+ggplot(confirmadosRG2, aes(x = FECHA_APERTURA, y = n)) +
+  geom_line(color = "#E67E22", size = 1) +
+  labs(x = "Fecha de notificación", y = "Frecuencia") +
+  theme(plot.title = element_text(size=rel(2), #Tamaño relativo de la letra del título
+                                  vjust=1, #Justificación vertical, para separarlo del gráfico
+                                  face="plain", #Letra negrilla. Otras posibilidades "plain", "italic", "bold" y "bold.italic"
+                                  lineheight=1))
+```
+
+##Cantidad de casos confirmados en Tolhuin
+
+``` {r}
+confirmadosTOL <- confirmados[confirmados$LOCALIDAD_RESIDENCIA == "TOLHUIN",]
+confirmadosTOL2 <- confirmadosTOL %>%
+  group_by(FECHA_APERTURA) %>%
+  tally()
+```
+
+``` {r}
+ggplot(confirmadosTOL2, aes(x = FECHA_APERTURA, y = n)) +
+  geom_line(color = "#116F7A", size = 1) +
+  labs(x = "Fecha de notificación", y = "Frecuencia") +
+  theme(plot.title = element_text(size=rel(2), #Tamaño relativo de la letra del título
+                                  vjust=1, #Justificación vertical, para separarlo del gráfico
+                                  face="plain", #Letra negrilla. Otras posibilidades "plain", "italic", "bold" y "bold.italic"
+                                  lineheight=1))
+```
+
+
+##Media móvil de 7 días para la cantidad de casos y llamados al 107 en Tierra del Fuego
+
+```{r}
+media <- confirmados2 %>%
+  mutate(conf_ma7 = rollmean(n, k = 7, fill = NA))
+media <- rename(media, Fecha = "FECHA_APERTURA", Casos = "n", Media = "conf_ma7")
+media$Referencia <- "Media_Casos"
+
+media_llamados <- llamados2 %>%
+  mutate(llamados_ma7 = rollmean(n, k = 7 , fill = NA))
+media_llamados <- rename(media_llamados, Fecha = "fecha_llamado", Llamados = "n", Media = "llamados_ma7")
+media_llamados$Referencia <- "Media_Llamados"
+
+medias <- full_join(media, media_llamados, by = c("Fecha", "Referencia", "Media"))
+
+ggplot(medias, aes(x = Fecha, y = Media, group = Referencia, colour = Referencia)) +
+  geom_line(size = 1) +
+  scale_color_manual(name = "Referencia:", values = c("#117A65", "#1EB2C3")) +
+  labs(x = "Fecha", y = "Media") +
+  theme(plot.title = element_text(size=rel(2), #Tamaño relativo de la letra del título
+                                  vjust=1, #Justificación vertical, para separarlo del gráfico
+                                  face="plain", #Letra negrilla. Otras posibilidades "plain", "italic", "bold" y "bold.italic"
+                                  lineheight=1),
+                                  legend.position = "bottom")
+```
+
+##Media móvil de 7 días para la cantidad de casos y llamados al 107 en Ushuaia
+
+```{r}
+media_ush <- confirmadosUSH2 %>%
+  mutate(Media = rollmean(n, k = 7, fill = NA))
+media_ush <- rename(media_ush, Fecha = "FECHA_APERTURA", Casos = "n", Media = "Media")
+media_ush$Referencia <- "Media_Casos"
+
+media_llamados_ush <- llamadosush2 %>%
+  mutate(media = rollmean(n, k = 7, fill = NA))
+media_llamados_ush <- rename(media_llamados_ush, Fecha = "fecha_llamado", Media = "media")
+media_llamados_ush$Referencia <- "Media_Llamados"
+
+medias_ush <- full_join(media_ush, media_llamados_ush, by = c("Fecha", "Referencia", "Media"))
+
+ggplot(medias_ush, aes(x = Fecha, y = Media, group = Referencia, colour = Referencia)) +
+  geom_line(size = 1) +
+  scale_color_manual(name = "Referencia:", values = c("#2E86C1", "#1EB2C3")) +
+  labs(x = "Fecha", y = "Media") +
+  theme(plot.title = element_text(size=rel(2), #Tamaño relativo de la letra del título
+                                  vjust=1, #Justificación vertical, para separarlo del gráfico
+                                  face="plain", #Letra negrilla. Otras posibilidades "plain", "italic", "bold" y "bold.italic"
+                                  lineheight=1),
+        legend.position = "bottom")
+```
+
+##Media móvil de 7 días para la cantidad de casos y llamados al 107 en Río Grande
+
+```{r}
+media_rg <- confirmadosRG2 %>%
+  mutate(Media = rollmean(n, k = 7, fill = NA))
+media_rg <- rename(media_rg, Fecha = "FECHA_APERTURA", Casos = "n", Media = "Media")
+media_rg$Referencia <- "Media_Casos"
+
+media_llamados_rg <- llamadosrg2 %>%
+  mutate(media = rollmean(n, k = 7, fill = NA))
+media_llamados_rg <- rename(media_llamados_rg, Fecha = "fecha_llamado", Media = "media")
+media_llamados_rg$Referencia <- "Media_Llamados"
+
+medias_rg <- full_join(media_rg, media_llamados_rg, by = c("Fecha", "Referencia", "Media"))
+
+ggplot(medias_rg, aes(x = Fecha, y = Media, group = Referencia, colour = Referencia)) +
+  geom_line(size = 1) +
+  scale_color_manual(name = "Referencia:", values = c("#E67E22", "#1EB2C3")) +
+  labs(x = "Fecha", y = "Media") +
+  theme(plot.title = element_text(size=rel(2), #Tamaño relativo de la letra del título
+                                  vjust=1, #Justificación vertical, para separarlo del gráfico
+                                  face="plain", #Letra negrilla. Otras posibilidades "plain", "italic", "bold" y "bold.italic"
+                                  lineheight=1),
+        legend.position = "bottom")
+
+```
+
+
+``` {r}
+confirmadosGEUSH <- confirmadosUSH %>%
+  group_by(GRUPO_ETARIO_DECADA) %>%
+  tally()
+
+confirmadosGERG <- confirmadosRG %>%
+  group_by(GRUPO_ETARIO_DECADA) %>%
+  tally()
+
+confirmadosGETOL <- confirmadosTOL %>%
+  group_by(GRUPO_ETARIO_DECADA) %>%
+  tally()
+```
+
+
+``` {r}
+defuncionesUSH <- confirmadosUSH[!is.na(confirmadosUSH$FALLECIDO),]
+defuncionesUSH <- defuncionesUSH[defuncionesUSH$FALLECIDO == "SI",]
+defuncionesUSH <- defuncionesUSH %>%
+  group_by(GRUPO_ETARIO_DECADA) %>%
+  tally()
+```
+
+
+``` {r}
+defuncionesRG <- confirmadosRG[!is.na(confirmadosRG$FALLECIDO),]
+defuncionesRG <- defuncionesRG[defuncionesRG$FALLECIDO == "SI",]
+defuncionesRG <- defuncionesRG %>%
+  group_by(GRUPO_ETARIO_DECADA) %>%
+  tally()
+```
+
+``` {r}
+defuncionesTOL <- confirmadosTOL[!is.na(confirmadosTOL$FALLECIDO),]
+defuncionesTOL <- defuncionesTOL[defuncionesTOL$FALLECIDO == "SI",]
+defuncionesTOL <- defuncionesTOL %>%
+  group_by(GRUPO_ETARIO_DECADA) %>%
+  tally()
+```
+
+##Cantidad de casos confirmados por grupo etario por ciudad
+
+``` {r}
+confirmadosGEUSH <- confirmadosGEUSH[!is.na(confirmadosGEUSH$GRUPO_ETARIO_DECADA),]
+confirmadosGERG <- confirmadosGERG[!is.na(confirmadosGERG$GRUPO_ETARIO_DECADA),]
+confirmadosGETOL <- confirmadosGETOL[!is.na(confirmadosGETOL$GRUPO_ETARIO_DECADA),]
+conf_ge <- left_join(confirmadosGEUSH, confirmadosGERG, by = "GRUPO_ETARIO_DECADA")
+conf_ge <- left_join(conf_ge, confirmadosGETOL, by = "GRUPO_ETARIO_DECADA")
+conf_ge <- rename(conf_ge, "GRUPO ETARIO" = GRUPO_ETARIO_DECADA, "USHUAIA" = n.x, "RIO GRANDE" = n.y, "TOLHUIN" = n)
+conf_ge$TOLHUIN <- ifelse(is.na(conf_ge$TOLHUIN), 0, conf_ge$TOLHUIN)
+total_col <- conf_ge %>% 
+  select(USHUAIA:TOLHUIN) %>%
+  colSums()
+total <- c("Total", total_col[1], total_col[2], total_col[3])
+conf_ge <- rbind(conf_ge,total)
+pander(conf_ge)
+```
+
+##Cantidad de defunciones por grupo etario por ciudad
+
+``` {r}
+def_ge <- right_join(defuncionesUSH, defuncionesRG, by = "GRUPO_ETARIO_DECADA")
+def_ge <- arrange(def_ge, GRUPO_ETARIO_DECADA)
+def_ge <- left_join(def_ge, defuncionesTOL, by = "GRUPO_ETARIO_DECADA")
+def_ge <- rename(def_ge, "GRUPO ETARIO" = GRUPO_ETARIO_DECADA, "USHUAIA" = n.x, "RIO GRANDE" = n.y, "TOLHUIN" = n)
+def_ge$USHUAIA <- ifelse(is.na(def_ge$USHUAIA), 0, def_ge$USHUAIA)
+def_ge$TOLHUIN <- ifelse(is.na(def_ge$TOLHUIN), 0, def_ge$TOLHUIN)
+total_col_def <- def_ge %>% 
+  select(USHUAIA:TOLHUIN) %>%
+  colSums()
+total_def <- c("Total", total_col_def[1], total_col_def[2], total_col_def[3])
+def_ge <- rbind(def_ge,total_def)
+pander(def_ge)
+```
+
+##Porcentaje de ocupación de camas en Ushuaia
+
+```{r}
+
+ocup <- select(confirmadosUSH, FECHA_APERTURA, FECHA_INTERNACION, CURADO, CUIDADO_INTENSIVO, FECHA_CUI_INTENSIVOS, FALLECIDO, FECHA_ALTA_MEDICA, FECHA_FALLECIMIENTO)
+
+
+ocup$UTI <- ifelse(ocup$FECHA_CUI_INTENSIVOS != "", 1, 0)
+
+#ocup$internacion2 <- ifelse(ocup$INTERNADO == "SI" & ocup$FECHA_INTERNACION != "", ocup$FECHA_INTERNACION, NA)
+#ocup$internacion <- ifelse(is.na(ocup$internacion) & ocup$internacion2 != "", ocup$internacion2, ocup$internacion)
+#ocup$internacion2 <- NULL
+
+#ocup$internacion_dic <- ifelse(is.na(ocup$internacion), 0, 1)
+
+ocup$fecha_alta <- ifelse(ocup$FECHA_CUI_INTENSIVOS != "" & ocup$FECHA_ALTA_MEDICA != "", ocup$FECHA_ALTA_MEDICA, NA)
+ocup$fecha_alta2 <- ifelse(ocup$FECHA_CUI_INTENSIVOS != "" & ocup$FECHA_FALLECIMIENTO != "", ocup$FECHA_FALLECIMIENTO, NA)
+ocup$fecha_alta <- ifelse(is.na(ocup$fecha_alta), ocup$fecha_alta2, ocup$fecha_alta)
+ocup$fecha_alta2 <- NULL
+
+ocup$alta_dic <- ifelse(is.na(ocup$fecha_alta), 0, 1)
+
+fecha_internacion <- ocup %>%
+  group_by(FECHA_CUI_INTENSIVOS) %>%
+  tally()
+fecha_internacion <- rename(fecha_internacion, "Fecha" = FECHA_CUI_INTENSIVOS, "Internados" = n)
+
+
+fecha_alta <- ocup %>%
+  group_by(fecha_alta) %>%
+  tally()
+fecha_alta <- rename(fecha_alta, "Fecha" = fecha_alta, "Altas" = n)
+
+
+fechas <- full_join(fecha_internacion, fecha_alta, by = "Fecha")
+fechas$Fecha <- ifelse(fechas$Fecha == "", NA, fechas$Fecha)
+
+fechas$Fecha <- as.Date(fechas$Fecha, format = "%d/%m/%Y")
+
+fechas$Internados <- ifelse(is.na(fechas$Internados), 0, fechas$Internados)
+fechas$Altas <- ifelse(is.na(fechas$Altas), 0, fechas$Altas)
+
+fechas$ocup <- fechas$Internados-fechas$Altas
+
+fechas <- na.omit(fechas)
+
+fechas <- fechas %>%
+  arrange(Fecha) %>%
+  mutate(ocup_acum = cumsum(ocup))
+
+Camas_inter_disp_ush <- 17
+
+fechas$porc_ocup <- round(fechas$ocup_acum/Camas_inter_disp_ush,2)*100
+
+
+ggplot(fechas, aes(x = Fecha, y = porc_ocup)) +
+  geom_line(color = "#2E86C1", size = 1) +
+  labs(x = "Fecha", y = "Porcentaje") +
+  theme(plot.title = element_text(size=rel(2), #Tamaño relativo de la letra del título
+                                  vjust=1, #Justificación vertical, para separarlo del gráfico
+                                  face="plain", #Letra negrilla. Otras posibilidades "plain", "italic", "bold" y "bold.italic"
+                                  lineheight=1))
+
+```
+
+
+##Porcentaje de ocupación de camas en Río Grande
+
+```{r}
+
+ocupRG <- select(confirmadosRG, FECHA_APERTURA, FECHA_INTERNACION, CURADO, CUIDADO_INTENSIVO, FECHA_CUI_INTENSIVOS, FALLECIDO, FECHA_ALTA_MEDICA, FECHA_FALLECIMIENTO)
+
+ocupRG$UTI <- ifelse(ocupRG$FECHA_CUI_INTENSIVOS != "", 1, 0)
+
+#ocup$internacion2 <- ifelse(ocup$INTERNADO == "SI" & ocup$FECHA_INTERNACION != "", ocup$FECHA_INTERNACION, NA)
+#ocup$internacion <- ifelse(is.na(ocup$internacion) & ocup$internacion2 != "", ocup$internacion2, ocup$internacion)
+#ocup$internacion2 <- NULL
+
+#ocup$internacion_dic <- ifelse(is.na(ocup$internacion), 0, 1)
+
+ocupRG$fecha_alta <- ifelse(ocupRG$FECHA_CUI_INTENSIVOS != "" & ocupRG$FECHA_ALTA_MEDICA != "", ocupRG$FECHA_ALTA_MEDICA, NA)
+ocupRG$fecha_alta2 <- ifelse(ocupRG$FECHA_CUI_INTENSIVOS != "" & ocupRG$FECHA_FALLECIMIENTO != "", ocupRG$FECHA_FALLECIMIENTO, NA)
+ocupRG$fecha_alta <- ifelse(is.na(ocupRG$fecha_alta), ocupRG$fecha_alta2, ocupRG$fecha_alta)
+ocupRG$fecha_alta2 <- NULL
+
+ocupRG$alta_dic <- ifelse(is.na(ocupRG$fecha_alta), 0, 1)
+
+fecha_internacionRG <- ocupRG %>%
+  group_by(FECHA_CUI_INTENSIVOS) %>%
+  tally()
+fecha_internacionRG <- rename(fecha_internacionRG, "Fecha" = FECHA_CUI_INTENSIVOS, "Internados" = n)
+
+fecha_altaRG <- ocupRG %>%
+  group_by(fecha_alta) %>%
+  tally()
+fecha_altaRG <- rename(fecha_altaRG, "Fecha" = fecha_alta, "Altas" = n)
+
+
+fechasRG <- full_join(fecha_internacionRG, fecha_altaRG, by = "Fecha")
+fechasRG$Fecha <- ifelse(fechasRG$Fecha == "", NA, fechasRG$Fecha)
+
+fechasRG$Fecha <- as.Date(fechasRG$Fecha, format = "%d/%m/%Y")
+
+fechasRG$Internados <- ifelse(is.na(fechasRG$Internados), 0, fechasRG$Internados)
+fechasRG$Altas <- ifelse(is.na(fechasRG$Altas), 0, fechasRG$Altas)
+
+fechasRG$ocup <- fechasRG$Internados-fechasRG$Altas
+
+fechasRG <- na.omit(fechasRG)
+
+fechasRG <- fechasRG %>%
+  arrange(Fecha) %>%
+  mutate(ocup_acum = cumsum(ocup))
+
+Camas_inter_disp_rg <- 21
+
+fechasRG$porc_ocup <- round(fechasRG$ocup_acum/Camas_inter_disp_rg,2)*100
+
+
+ggplot(fechasRG, aes(x = Fecha, y = porc_ocup)) +
+  geom_line(color = "#E67E22", size = 1) +
+  labs(x = "Fecha", y = "Porcentaje") +
+  theme(plot.title = element_text(size=rel(2), #Tamaño relativo de la letra del título
+                                  vjust=1, #Justificación vertical, para separarlo del gráfico
+                                  face="plain", #Letra negrilla. Otras posibilidades "plain", "italic", "bold" y "bold.italic"
+                                  lineheight=1))
+
+```
+
+## Semáforo para Ushuaia
+
+```{r}
+llam_dia_ush <- llamadosush2$n[nrow(llamadosush2)]
+llam_ant_ush <- llamadosush2$n[nrow(llamadosush2)-1]
+x <-  last(fechas$porc_ocup)
+
+
+mode <- case_when(
+  x < 40 & (llam_dia_ush < llam_ant_ush) ~ "Verde",
+  x < 40 & (llam_dia_ush > llam_ant_ush) ~ "Amarillo",
+  40 < x & x < 60 & (llam_dia_ush < llam_ant_ush) ~ "Verde",
+  40 < x & x < 60 & (llam_dia_ush > llam_ant_ush) ~ "Naranja",
+  60 < x & x < 80 & (llam_dia_ush < llam_ant_ush) ~ "Amarillo",
+  60 < x & x < 80 & (llam_dia_ush > llam_ant_ush) ~ "Rojo",
+  x > 80 & (llam_dia_ush < llam_ant_ush) ~ "Naranja",
+  x > 80 & (llam_dia_ush > llam_ant_ush) ~ "Rojo"
+)
+
+if (mode == "Verde") {
+  wordcloud("Verde", 
+            colors = "green",
+            scale = c(7,7),
+            rot.per = 0)
+} else if (mode == "Amarillo") {
+  wordcloud("Amarillo", 
+            colors = "yellow",
+            scale = c(7,7),
+            rot.per = 0)
+} else if (mode == "Naranja") {
+  wordcloud("Naranja", 
+            colors = "orange",
+            scale = c(7,7),
+            rot.per = 0)
+} else if (mode == "Rojo") {
+  wordcloud("Rojo", 
+            colors = "red",
+            scale = c(7,7),
+            rot.per = 0)
+}
+
+```
+
+## Semáforo para Río Grande
+
+```{r}
+
+llam_dia_rg <- llamadosrg2$n[nrow(llamadosrg2)]
+llam_ant_rg <- llamadosrg2$n[nrow(llamadosrg2)-1]
+x_rg <-  last(fechasRG$porc_ocup)
+
+mode <- case_when(
+  x_rg < 40 & (llam_dia_rg < llam_ant_rg) ~ "Verde",
+  x_rg < 40 & (llam_dia_rg > llam_ant_rg) ~ "Amarillo",
+  40 < x_rg & x_rg < 60 & (llam_dia_rg < llam_ant_rg) ~ "Verde",
+  40 < x_rg & x_rg < 60 & (llam_dia_rg > llam_ant_rg) ~ "Naranja",
+  60 < x_rg & x_rg < 80 & (llam_dia_rg < llam_ant_rg) ~ "Amarillo",
+  60 < x_rg & x_rg < 80 & (llam_dia_rg > llam_ant_rg) ~ "Rojo",
+  x_rg > 80 & (llam_dia_rg < llam_ant_rg) ~ "Naranja",
+  x_rg > 80 & (llam_dia_rg > llam_ant_rg) ~ "Rojo"
+)
+
+if (mode == "Verde") {
+  wordcloud("Verde", 
+            colors = "green",
+            scale = c(7,7),
+            rot.per = 0)
+} else if (mode == "Amarillo") {
+  wordcloud("Amarillo", 
+            colors = "yellow",
+            scale = c(7,7),
+            rot.per = 0)
+} else if (mode == "Naranja") {
+  wordcloud("Naranja", 
+            colors = "orange",
+            scale = c(7,7),
+            rot.per = 0)
+} else if (mode == "Rojo") {
+  wordcloud("Rojo", 
+            colors = "red",
+            scale = c(7,7),
+            rot.per = 0)
+}
+
+```
+
+
+
+
+
